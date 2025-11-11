@@ -71,30 +71,26 @@ pipeline {
             }
         }
 
-       stage('Docker Build & Push') {
-    steps {
-        script {
-            // Set your Docker image name
-            def dockerImage = "chaitanya888888888/helloworldapp"
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    bat """
+                        echo Building Docker image...
+                        docker build -t %DOCKER_IMAGE%:latest .
 
-            echo "Building Docker image..."
-            bat "docker build -t ${dockerImage}:latest ."
+                        echo Tagging image as version 1...
+                        docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
 
-            echo "Tagging image as version 1..."
-            bat "docker tag ${dockerImage}:latest ${dockerImage}:v1"
+                        echo Logging in to Docker (replace <YOUR_DOCKERHUB_TOKEN> with real token)...
+                        docker login -u chaitanya1380 -p <YOUR_DOCKERHUB_TOKEN>
 
-            // Use Jenkins credentials to log in to Docker Hub
-            withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                echo "Logging in to DockerHub..."
-                bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
-
-                echo "Pushing images..."
-                bat "docker push ${dockerImage}:latest"
-                bat "docker push ${dockerImage}:v1"
+                        echo Pushing images to DockerHub...
+                        docker push %DOCKER_IMAGE%:latest
+                        docker push %DOCKER_IMAGE%:v1
+                    """
+                }
             }
         }
-    }
-}
     }
 
     post {
