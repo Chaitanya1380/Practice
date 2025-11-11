@@ -1,0 +1,14 @@
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\bin\Debug\net9.0\HelloWorldApp.exe
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\bin\Debug\net9.0\HelloWorldApp.deps.json
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\bin\Debug\net9.0\HelloWorldApp.runtimeconfig.json
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\bin\Debug\net9.0\HelloWorldApp.dll
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\bin\Debug\net9.0\HelloWorldApp.pdb
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.GeneratedMSBuildEditorConfig.editorconfig
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.AssemblyInfoInputs.cache
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.AssemblyInfo.cs
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.csproj.CoreCompileInputs.cache
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.dll
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\refint\HelloWorldApp.dll
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.pdb
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.genruntimeconfig.cache
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\ref\HelloWorldApp.dll
