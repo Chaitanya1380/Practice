@@ -2,35 +2,42 @@ pipeline {
     agent any
 
     stages {
-
         stage('Restore') {
             steps {
-                bat 'dotnet restore'
+                dir('HelloWorldApp') {
+                    bat 'dotnet restore HelloWorldApp.sln'
+                }
             }
         }
 
         stage('Build') {
             steps {
-                bat 'dotnet build --configuration Release'
+                dir('HelloWorldApp') {
+                    bat 'dotnet build HelloWorldApp.sln --configuration Release'
+                }
             }
         }
 
         stage('Test') {
             steps {
-                bat 'dotnet test'
+                dir('HelloWorldApp.Tests') {
+                    bat 'dotnet test HelloWorldApp.Tests.csproj'
+                }
             }
         }
 
         stage('Publish') {
             steps {
-                bat 'dotnet publish HelloWorldApp/HelloWorldApp.csproj -c Release -o ./publish'
+                dir('HelloWorldApp') {
+                    bat 'dotnet publish HelloWorldApp.csproj -c Release -o ../published'
+                }
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: '**/publish/**/*.*', followSymlinks: false
+            archiveArtifacts artifacts: 'published/**', allowEmptyArchive: true
         }
     }
 }
