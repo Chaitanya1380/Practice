@@ -72,25 +72,27 @@ pipeline {
         }
 
         stage('Docker Build & Push') {
-            steps {
-                script {
-                    bat """
-                        echo Building Docker image...
-                        docker build -t %DOCKER_IMAGE%:latest .
+    steps {
+        script {
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                bat """
+                    echo Building Docker image...
+                    docker build -t %DOCKER_IMAGE%:latest .
 
-                        echo Tagging image as version 1...
-                        docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
+                    echo Tagging image as version 1...
+                    docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
 
-                        echo Logging in to Docker (replace <YOUR_DOCKERHUB_TOKEN> with real token)...
-                        docker login -u chaitanya1380 -p <YOUR_DOCKERHUB_TOKEN>
+                    echo Logging in to DockerHub...
+                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
 
-                        echo Pushing images to DockerHub...
-                        docker push %DOCKER_IMAGE%:latest
-                        docker push %DOCKER_IMAGE%:v1
-                    """
-                }
+                    echo Pushing images...
+                    docker push %DOCKER_IMAGE%:latest
+                    docker push %DOCKER_IMAGE%:v1
+                """
             }
         }
+    }
+}
     }
 
     post {
