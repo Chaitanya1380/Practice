@@ -33,7 +33,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('MySonarQube') {
+                withSonarQubeEnv('SonarQube') {
                     bat 'dotnet sonarscanner begin /k:"HelloWorldApp" /d:sonar.host.url=%SONAR_HOST_URL% /d:sonar.login=%SONAR_AUTH_TOKEN%'
                     bat 'dotnet build HelloWorldApp/HelloWorldApp.sln'
                     bat 'dotnet sonarscanner end /d:sonar.login=%SONAR_AUTH_TOKEN%'
