@@ -1,9 +1,10 @@
-﻿using System;
-
-class Program
+﻿namespace HelloWorldApp
 {
-    static void Main()
+    static class Program
     {
-        Console.WriteLine("Hello from Jenkins CI Pipeline!");
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello, World!");
+        }
     }
 }
