@@ -2,10 +2,8 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQube' // Must match the name configured in Jenkins "Manage Jenkins" > "Configure System"
-        DOCKER_IMAGE = 'chaitanya1380/helloworldapp'
-        DOCKERHUB_USERNAME = 'chaitanya1380'
-        DOCKERHUB_TOKEN = credentials('dockerhub-token') // Jenkins credential ID (store your DockerHub token here)
+        SONARQUBE = 'SonarQube' // As configured in Jenkins Global Tool Config
+        DOCKER_IMAGE = 'helloworldapp' // Only local image build (not pushing to DockerHub)
     }
 
     stages {
@@ -28,34 +26,40 @@ pipeline {
         stage('Test') {
             steps {
                 dir('HelloWorldApp.Tests') {
-                    // Generates code coverage for SonarQube
-                    bat 'dotnet test HelloWorldApp.Tests.csproj --collect:"XPlat Code Coverage"'
+                    bat 'dotnet test HelloWorldApp.Tests.csproj'
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv("${SONARQUBE}") {
+                withSonarQubeEnv('SonarQube') {
                     bat '''
-                    REM --- Add SonarScanner global path ---
+                    REM --- Ensure Jenkins can find the dotnet-sonarscanner tool ---
                     SET PATH=%PATH%;C:\\Users\\chait\\.dotnet\\tools
 
-                    REM --- Start SonarCloud Analysis ---
+                    REM --- Start SonarQube Analysis ---
                     dotnet sonarscanner begin ^
                       /k:"chaitanyasiripurapu_Practice" ^
                       /o:"chaitanyasiripurapu" ^
                       /d:sonar.host.url="https://sonarcloud.io" ^
                       /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43" ^
-                      /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" ^
-                      /d:sonar.verbose=true
+                      /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
-                    REM --- Build required inside scanner ---
-                    dotnet build HelloWorldApp/HelloWorldApp.sln --configuration Release
+                    REM --- Build the project (required for analysis) ---
+                    dotnet build HelloWorldApp.sln --configuration Release
 
                     REM --- End SonarQube Analysis ---
                     dotnet sonarscanner end /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43"
                     '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -68,19 +72,13 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Docker Build') {
             steps {
                 script {
-                    // Login using Jenkins credentials
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                        bat """
-                            docker build -t %DOCKER_IMAGE%:latest .
-                            docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
-                            docker login -u %USERNAME% -p %PASSWORD%
-                            docker push %DOCKER_IMAGE%:latest
-                            docker push %DOCKER_IMAGE%:v1
-                        """
-                    }
+                    bat """
+                        docker build -t %DOCKER_IMAGE%:latest .
+                        docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
+                    """
                 }
             }
         }
