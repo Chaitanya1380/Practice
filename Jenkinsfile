@@ -71,24 +71,26 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
+       stage('Docker Build & Push') {
     steps {
         script {
-            withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                bat """
-                    echo Building Docker image...
-                    docker build -t %DOCKER_IMAGE%:latest .
+            // Set your Docker image name
+            def dockerImage = "chaitanya888888888/helloworldapp"
 
-                    echo Tagging image as version 1...
-                    docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
+            echo "Building Docker image..."
+            bat "docker build -t ${dockerImage}:latest ."
 
-                    echo Logging in to DockerHub...
-                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+            echo "Tagging image as version 1..."
+            bat "docker tag ${dockerImage}:latest ${dockerImage}:v1"
 
-                    echo Pushing images...
-                    docker push %DOCKER_IMAGE%:latest
-                    docker push %DOCKER_IMAGE%:v1
-                """
+            // Use Jenkins credentials to log in to Docker Hub
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                echo "Logging in to DockerHub..."
+                bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
+
+                echo "Pushing images..."
+                bat "docker push ${dockerImage}:latest"
+                bat "docker push ${dockerImage}:v1"
             }
         }
     }
