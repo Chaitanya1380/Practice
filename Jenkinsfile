@@ -2,11 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Chaitanya1380/Practice.git'
-            }
-        }
 
         stage('Restore') {
             steps {
