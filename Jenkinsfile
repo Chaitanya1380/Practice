@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQube' // Name configured in Jenkins Global Tool Config
+        SONARQUBE = 'SonarQube'
         DOCKER_IMAGE = 'chaitanya1380/helloworldapp'
     }
 
@@ -10,56 +10,49 @@ pipeline {
 
         stage('Restore') {
             steps {
-                dir('HelloWorldApp') {
-                    bat 'dotnet restore HelloWorldApp.sln'
-                }
+                bat 'dotnet restore HelloWorldApp/HelloWorldApp.sln'
             }
         }
 
-        stage('SonarQube Analysis + Test') {
+        stage('Build') {
             steps {
-                dir('HelloWorldApp') {
-                    withSonarQubeEnv('SonarQube') {
-                        bat """
-                        REM --- Ensure Jenkins can find the dotnet-sonarscanner tool ---
-                        SET PATH=%PATH%;C:\\Users\\chait\\.dotnet\\tools
+                bat 'dotnet build HelloWorldApp/HelloWorldApp.sln --configuration Release'
+            }
+        }
 
-                        REM --- Begin SonarQube Analysis ---
-                        dotnet sonarscanner begin ^
-                          /k:"Chaitanya1380_Practice" ^
-                          /o:"chaitanya1380" ^
-                          /d:sonar.host.url="https://sonarcloud.io" ^
-                          /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43" ^
-                          /d:sonar.cs.opencover.reportsPaths="../TestResults/coverage.opencover.xml"
+        stage('Test & SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    bat """
+                    SET PATH=%PATH%;C:\\Users\\chait\\.dotnet\\tools
 
-                        REM --- Build the solution ---
-                        dotnet build HelloWorldApp.sln --configuration Release
-                        """
+                    REM --- Begin SonarQube Analysis ---
+                    dotnet sonarscanner begin ^
+                      /k:"Chaitanya1380_Practice" ^
+                      /o:"chaitanya1380" ^
+                      /d:sonar.host.url="https://sonarcloud.io" ^
+                      /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43" ^
+                      /d:sonar.cs.opencover.reportsPaths="TestResults/coverage.opencover.xml"
 
-                        dir('HelloWorldApp.Tests') {
-                            bat """
-                            REM --- Run tests with coverage ---
-                            dotnet test HelloWorldApp.Tests.csproj ^
-                              /p:CollectCoverage=true ^
-                              /p:CoverletOutputFormat=opencover ^
-                              /p:CoverletOutput=../TestResults/coverage.opencover.xml
-                            """
-                        }
+                    REM --- Build the solution ---
+                    dotnet build HelloWorldApp/HelloWorldApp.sln --configuration Release
 
-                        bat """
-                        REM --- End SonarQube Analysis ---
-                        dotnet sonarscanner end /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43"
-                        """
-                    }
+                    REM --- Run tests with coverage ---
+                    dotnet test HelloWorldApp.Tests/HelloWorldApp.Tests.csproj ^
+                      /p:CollectCoverage=true ^
+                      /p:CoverletOutputFormat=opencover ^
+                      /p:CoverletOutput=TestResults/coverage.opencover.xml
+
+                    REM --- End SonarQube Analysis ---
+                    dotnet sonarscanner end /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43"
+                    """
                 }
             }
         }
 
         stage('Publish') {
             steps {
-                dir('HelloWorldApp') {
-                    bat 'dotnet publish HelloWorldApp.csproj -c Release -o ../published'
-                }
+                bat 'dotnet publish HelloWorldApp/HelloWorldApp.csproj -c Release -o published'
             }
         }
 
