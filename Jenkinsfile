@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQube' // SonarQube name configured in Jenkins
+        SONARQUBE = 'SonarQube' // Name as configured in Jenkins Global Tool Config
         DOCKER_IMAGE = 'chaitanya1380/helloworldapp'
     }
 
@@ -32,29 +32,29 @@ pipeline {
         }
 
         stage('SonarQube Analysis') {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            bat '''
-            REM --- Ensure Jenkins can find the dotnet-sonarscanner tool ---
-            SET PATH=%PATH%;C:\\Users\\chait\\.dotnet\\tools
+            steps {
+                withSonarQubeEnv("${SONARQUBE}") {
+                    bat '''
+                    REM --- Add SonarScanner global path ---
+                    SET PATH=%PATH%;C:\\Users\\chait\\.dotnet\\tools
 
-            REM --- Start SonarQube Analysis ---
-            dotnet sonarscanner begin ^
-              /k:"HelloWorldApp" ^
-              /o:"chaitanya1380" ^
-              /d:sonar.host.url="https://sonarcloud.io" ^
-              /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43" ^
-              /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+                    REM --- Start SonarQube Analysis ---
+                    dotnet sonarscanner begin ^
+                      /k:"HelloWorldApp" ^
+                      /o:"chaitanya1380" ^
+                      /d:sonar.host.url="https://sonarcloud.io" ^
+                      /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43" ^
+                      /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
 
-            REM --- Build the project (required for analysis) ---
-            dotnet build HelloWorldApp.sln --configuration Release
+                    REM --- Build again inside scanner (required for analysis) ---
+                    dotnet build HelloWorldApp/HelloWorldApp.sln --configuration Release
 
-            REM --- End SonarQube Analysis ---
-            dotnet sonarscanner end /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43"
-            '''
+                    REM --- End SonarQube Analysis ---
+                    dotnet sonarscanner end /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43"
+                    '''
+                }
+            }
         }
-    }
-}
 
         stage('Publish') {
             steps {
@@ -67,9 +67,11 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
+                    // Ensure Docker is logged in before pushing
                     bat """
                         docker build -t %DOCKER_IMAGE%:latest .
                         docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
+                        docker login -u chaitanya1380 -p <YOUR_DOCKERHUB_TOKEN>
                         docker push %DOCKER_IMAGE%:latest
                         docker push %DOCKER_IMAGE%:v1
                     """
