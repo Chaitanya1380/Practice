@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQube' // Name as configured in Jenkins Global Tool Config
+        SONARQUBE = 'SonarQube' // Must match the name configured in Jenkins "Manage Jenkins" > "Configure System"
         DOCKER_IMAGE = 'chaitanya1380/helloworldapp'
+        DOCKERHUB_USERNAME = 'chaitanya1380'
+        DOCKERHUB_TOKEN = credentials('dockerhub-token') // Jenkins credential ID (store your DockerHub token here)
     }
 
     stages {
@@ -26,7 +28,8 @@ pipeline {
         stage('Test') {
             steps {
                 dir('HelloWorldApp.Tests') {
-                    bat 'dotnet test HelloWorldApp.Tests.csproj'
+                    // Generates code coverage for SonarQube
+                    bat 'dotnet test HelloWorldApp.Tests.csproj --collect:"XPlat Code Coverage"'
                 }
             }
         }
@@ -38,15 +41,16 @@ pipeline {
                     REM --- Add SonarScanner global path ---
                     SET PATH=%PATH%;C:\\Users\\chait\\.dotnet\\tools
 
-                    REM --- Start SonarQube Analysis ---
+                    REM --- Start SonarCloud Analysis ---
                     dotnet sonarscanner begin ^
-                      /k:"HelloWorldApp" ^
-                      /o:"chaitanya1380" ^
+                      /k:"chaitanyasiripurapu_Practice" ^
+                      /o:"chaitanyasiripurapu" ^
                       /d:sonar.host.url="https://sonarcloud.io" ^
                       /d:sonar.login="128b4f37e95dae351ab067aed7426e9588352d43" ^
-                      /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
+                      /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" ^
+                      /d:sonar.verbose=true
 
-                    REM --- Build again inside scanner (required for analysis) ---
+                    REM --- Build required inside scanner ---
                     dotnet build HelloWorldApp/HelloWorldApp.sln --configuration Release
 
                     REM --- End SonarQube Analysis ---
@@ -67,14 +71,16 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Ensure Docker is logged in before pushing
-                    bat """
-                        docker build -t %DOCKER_IMAGE%:latest .
-                        docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
-                        docker login -u chaitanya1380 -p <YOUR_DOCKERHUB_TOKEN>
-                        docker push %DOCKER_IMAGE%:latest
-                        docker push %DOCKER_IMAGE%:v1
-                    """
+                    // Login using Jenkins credentials
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        bat """
+                            docker build -t %DOCKER_IMAGE%:latest .
+                            docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
+                            docker login -u %USERNAME% -p %PASSWORD%
+                            docker push %DOCKER_IMAGE%:latest
+                            docker push %DOCKER_IMAGE%:v1
+                        """
+                    }
                 }
             }
         }
