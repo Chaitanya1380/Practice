@@ -74,17 +74,33 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+       stage('Docker Build & Push') {
             steps {
-                script {
-                    bat """
-                        docker build -t %DOCKER_IMAGE%:latest .
-                        docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
-                    """
+                // Use Jenkins credentials for Docker Hub login
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-token', 
+                                                  usernameVariable: 'DOCKER_USERNAME', 
+                                                  passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        bat """
+                            echo Building Docker image...
+                            docker build -t %DOCKER_IMAGE%:latest .
+
+                            echo Tagging image as version 1...
+                            docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
+
+                            echo Logging in to DockerHub...
+                            docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD
+
+                            echo Pushing images to DockerHub...
+                            docker push %DOCKER_IMAGE%:latest
+                            docker push %DOCKER_IMAGE%:v1
+                        """
+                    }
                 }
             }
         }
     }
+
 
     post {
         always {
