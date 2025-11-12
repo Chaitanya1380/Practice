@@ -7,6 +7,7 @@ D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.Gener
 D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.AssemblyInfoInputs.cache
 D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.AssemblyInfo.cs
 D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.csproj.CoreCompileInputs.cache
+D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.sourcelink.json
 D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.dll
 D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\refint\HelloWorldApp.dll
 D:\practice\DotNetJenkinsDemo\HelloWorldApp\obj\Debug\net9.0\HelloWorldApp.pdb

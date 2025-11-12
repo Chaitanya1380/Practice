@@ -1,13 +1,23 @@
-﻿using Xunit;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using HelloWorldApp;
 
 namespace HelloWorldApp.Tests
 {
+    [TestClass]
     public class UnitTest1
     {
-        [Fact]
-        public void Test1()
+        [TestMethod]
+        public void Add_TwoNumbers_ReturnsSum()
         {
-            Assert.Equal(1, 1);
+            // Arrange
+            int a = 5;
+            int b = 3;
+
+            // Act
+            int result = Program.Add(a, b);
+
+            // Assert
+            Assert.AreEqual(8, result);
         }
     }
 }

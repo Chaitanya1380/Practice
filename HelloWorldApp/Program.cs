@@ -1,10 +1,19 @@
-﻿namespace HelloWorldApp
+﻿// HelloWorldApp/Program.cs
+using System;
+
+namespace HelloWorldApp
 {
-    static class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            Console.WriteLine("Hello World!");
+        }
+
+        // Simple method for testing
+        public static int Add(int a, int b)
+        {
+            return a + b;
         }
     }
 }
