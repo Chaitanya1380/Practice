@@ -82,22 +82,25 @@ pipeline {
             script {
                 bat """
                     echo Building Docker image...
-                    docker build -t %DOCKER_IMAGE%:latest .
+                    set IMAGE_NAME=%DOCKER_USERNAME%/helloworldapp
+
+                    docker build -t %IMAGE_NAME%:latest .
 
                     echo Tagging image as version 1...
-                    docker tag %DOCKER_IMAGE%:latest %DOCKER_IMAGE%:v1
+                    docker tag %IMAGE_NAME%:latest %IMAGE_NAME%:v1
 
                     echo Logging in to Docker Hub...
-                    docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD
+                    docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%
 
                     echo Pushing images to Docker Hub...
-                    docker push %DOCKER_IMAGE%:latest
-                    docker push %DOCKER_IMAGE%:v1
+                    docker push %IMAGE_NAME%:latest
+                    docker push %IMAGE_NAME%:v1
                 """
             }
         }
     }
 }
+
     }
     post {
         always {
